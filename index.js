@@ -4,15 +4,15 @@ const App = Express();
 const fs = require("fs");
 
 for (const modName of fs.readdirSync("./controllers")) {
-    const router = express.Router();
+    const router = Express.Router();
 
-    const mod = require(`./modules/${modName}`);    
+    const mod = require(`./controllers/${modName}`);
     mod({ router }).then(() => {
-        app.use(`/${modName.replace(".js", "")}`, router);
+        App.use(`/${modName.replace(".js", "")}`, router);
         console.log(`Loaded controller ${modName.replace(".js", "")}`);
     });
 }
 
-app.listen(process.env.PORT || 3157, () => {
-    OK(`Listening on port ${process.env.PORT || 3157}`);
+App.listen(process.env.PORT || 3157, () => {
+    console.log(`Listening on port ${process.env.PORT || 3157}`);
 });

@@ -25,6 +25,7 @@ async function updateVideoId() {
 
         if (items.length == 0) {
             console.warn("Gary the Axolotl isn't live right now");
+            VIDEO_DATA = null;
         } else {
             VIDEO_DATA = items[0];
         }
@@ -38,7 +39,8 @@ module.exports = async ({ router }) => {
 
     router.get("/garytheaxolotl", async (req, res) => {
         await updateVideoId();
-        
+        if (VIDEO_DATA === null) return res.sendStatus(503);
+
         if (Date.now() >= cooldown + 10000) {
             // Fetch new image every 10 seconds
             cooldown = Date.now();
@@ -52,6 +54,7 @@ module.exports = async ({ router }) => {
 
     router.get("/garytheaxolotl/meta", async (req, res) => {
         await updateVideoId();
+        if (VIDEO_DATA === null) return res.sendStatus(503);
         
         res.send({
             liveVideoId: VIDEO_DATA.id.videoId,
