@@ -2,8 +2,8 @@ const cp = require("child_process");
 const fs = require("fs");
 const axios = require("axios");
 
-const Database = require("@replit/database");
-const db = new Database();
+const JSONdb = require("simple-json-db");
+const db = new JSONdb(__dirname + "/../db/garytheaxolotl.json");
 
 const CHANNEL_ID = "UCrhYiGXMwsfXB3QTCHmFQiQ";
 
@@ -28,16 +28,22 @@ async function updateVideoId() {
             VIDEO_DATA = null;
         } else {
             VIDEO_DATA = items[0];
+
+            console.log(VIDEO_DATA);
         }
 
         await db.set("axolotl-update-videodata", JSON.stringify(VIDEO_DATA));
+    } else {
+        await db.set("axolotl-update-videodata-cooldown", Date.now());
+        
+        VIDEO_DATA = JSON.parse(await db.get("axolotl-update-videodata"));
     }
 }
 
 module.exports = async ({ router }) => {
     await updateVideoId();
 
-    router.get("/garytheaxolotl", async (req, res) => {
+    router.get("/", async (req, res) => {
         await updateVideoId();
         if (VIDEO_DATA === null) return res.sendStatus(503);
 
@@ -52,7 +58,7 @@ module.exports = async ({ router }) => {
         res.send(fs.readFileSync("last.jpg"));
     });
 
-    router.get("/garytheaxolotl/meta", async (req, res) => {
+    router.get("/meta", async (req, res) => {
         await updateVideoId();
         if (VIDEO_DATA === null) return res.sendStatus(503);
         
