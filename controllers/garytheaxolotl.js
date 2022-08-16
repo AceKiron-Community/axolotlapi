@@ -40,22 +40,32 @@ async function updateVideoId() {
     }
 }
 
+async function fetchPicture(sync=false) {
+    const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 temp/garytheaxolotl-last.jpg -y -v quiet`;
+    return cp.exec(query);
+}
+
+let updating = false;
+
 module.exports = async ({ router }) => {
     await updateVideoId();
+    await fetchPicture();
 
     router.get("/", async (req, res) => {
         await updateVideoId();
         if (VIDEO_DATA === null) return res.sendStatus(503);
 
-        if (Date.now() >= cooldown + 10000) {
-            // Fetch new image every 10 seconds
-            cooldown = Date.now();
-            cp.exec(`ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 last.jpg -y -v quiet`);
-            console.log("Updating GaryTheAxolotl image");
+        if (Date.now() >= cooldown + 1500 && !updating) {
+            updating = true;
+            fetchPicture().then(() => {
+                cooldown = Date.now();
+                updating = false;
+                console.log("Updated GaryTheAxolotl image");
+            });
         }
         
         res.setHeader("Content-type", "image/jpeg");
-        res.send(fs.readFileSync("last.jpg"));
+        res.send(fs.readFileSync("temp/garytheaxolotl-last.jpg"));
     });
 
     router.get("/meta", async (req, res) => {
