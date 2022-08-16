@@ -1,6 +1,5 @@
 db/
+temp/
 node_modules/
 
 .env
-
-last.jpg
