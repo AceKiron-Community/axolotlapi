@@ -40,7 +40,7 @@ async function updateVideoId() {
     }
 }
 
-async function fetchPicture(sync=false) {
+async function fetchPicture() {
     const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 temp/garytheaxolotl-last.jpg -y -v quiet`;
     return cp.exec(query);
 }
