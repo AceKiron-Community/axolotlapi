@@ -6,7 +6,15 @@ let careAdvice = [];
 let artsAndCrafts = [];
 let discussion = [];
 
+let lastUpdated = 0;
+
+function isAllowedToUpdate() {
+    return Date.now() > lastUpdated + 60 * 30 * 1000; // Update once every 30 minutes
+}
+
 async function update() {
+    lastUpdated = Date.now();
+
     const limit = 100;
     const res = await Axios.get(`https://www.reddit.com/r/axolotls/new.json?limit=${limit}`);
     
@@ -49,25 +57,30 @@ module.exports = async ({ router }) => {
     router.get("/showing-off", (req, res) => {
         if (showingOff.length == 0) { update(); return res.sendStatus(503); }
         res.send(showingOff[Math.floor(Math.random() * showingOff.length)]);
+        if (isAllowedToUpdate()) { update(); }
     });
 
     router.get("/urgent-help", (req, res) => {
         if (urgentHelp.length == 0) { update(); return res.sendStatus(503); }
         res.send(urgentHelp[Math.floor(Math.random() * urgentHelp.length)]);
+        if (isAllowedToUpdate()) { update(); }
     });
 
     router.get("/care-advice", (req, res) => {
         if (careAdvice.length == 0) { update(); return res.sendStatus(503); }
         res.send(careAdvice[Math.floor(Math.random() * careAdvice.length)]);
+        if (isAllowedToUpdate()) { update(); }
     });
 
     router.get("/arts-and-crafts", (req, res) => {
         if (artsAndCrafts.length == 0) { update(); return res.sendStatus(503); }
         res.send(artsAndCrafts[Math.floor(Math.random() * artsAndCrafts.length)]);
+        if (isAllowedToUpdate()) { update(); }
     });
 
     router.get("/discussion", (req, res) => {
         if (discussion.length == 0) { update(); return res.sendStatus(503); }
         res.send(discussion[Math.floor(Math.random() * discussion.length)]);
+        if (isAllowedToUpdate()) { update(); }
     });
 }
