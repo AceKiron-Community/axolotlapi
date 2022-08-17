@@ -1,5 +1,5 @@
 db/
-temp/
+TEMP/
 node_modules/
 
 .env

@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const fs = require("fs");
 
-if (!fs.existsSync("./temp")) fs.mkdirSync("./temp");
+if (!fs.existsSync("./TEMP")) fs.mkdirSync("./TEMP");
 if (!fs.existsSync("./db")) fs.mkdirSync("./db");
 
 for (const modName of fs.readdirSync("./controllers")) {
