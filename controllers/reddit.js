@@ -26,14 +26,14 @@ async function update() {
         else if (child.data.url) media = [child.data.url];
 
         let payload = { title, score, media, link, author, total_awards_received };
+        payload.comments = child.data.num_comments;
 
         switch(child.data.link_flair_text) {
             case "Just Showing Off 😍": showingOff.push(payload); break;
             case "Urgent Help": urgentHelp.push(payload); break;
             case "General Care Advice": careAdvice.push(payload); break;
             case "Arts and Crafts": artsAndCrafts.push(payload); break;
-            
-            case "Discussion": payload.comments = child.data.num_comments; discussion.push(payload); break;
+            case "Discussion": discussion.push(payload); break;
 
             default: console.log("Unhandled flair: " + child.data.link_flair_text); break;
         }
