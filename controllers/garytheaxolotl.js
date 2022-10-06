@@ -62,7 +62,7 @@ module.exports = async ({ router }) => {
             fetchPicture().then(() => {
                 cooldown = Date.now();
                 updating = false;
-                console.log("Updated GaryTheAxolotl image");
+                console.log("[" + new Date().toTimeString() + "] Updated GaryTheAxolotl image");
             });
         }
         
