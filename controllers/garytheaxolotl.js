@@ -44,7 +44,7 @@ async function updateVideoId() {
 
 async function fetchPicture() {
     const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 ./TEMP/garytheaxolotl-last.jpg -y -v quiet`;
-    return cp.exec(query);
+    return await cp.exec(query);
 }
 
 let updating = false;
@@ -67,7 +67,7 @@ module.exports = async ({ router }) => {
         }
         
         res.setHeader("Content-type", "image/jpeg");
-        res.send(fs.readFileSync("TEMP/garytheaxolotl-last.jpg"));
+        res.send(fs.readFileSync("./TEMP/garytheaxolotl-last.jpg"));
     });
 
     router.get("/meta", async (req, res) => {
