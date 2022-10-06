@@ -21,7 +21,9 @@ async function updateVideoId() {
             url: `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${process.env.GOOGLE_API_KEY}`
         });
 
-        let items = req.data.items.filter((item) => item.snippet.title === "Axolotl Live 24/7 With Gary The Axolotl");
+        console.log(req.data.items[0].snippet);
+
+        let items = req.data.items.filter((item) => item.snippet.title === "Axolotl Live 24/7 With Gary The Axolotl and Migi");
 
         if (items.length == 0) {
             console.warn("Gary the Axolotl isn't live right now");
@@ -41,7 +43,7 @@ async function updateVideoId() {
 }
 
 async function fetchPicture() {
-    const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 temp/garytheaxolotl-last.jpg -y -v quiet`;
+    const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 ./TEMP/garytheaxolotl-last.jpg -y -v quiet`;
     return cp.exec(query);
 }
 
@@ -65,7 +67,7 @@ module.exports = async ({ router }) => {
         }
         
         res.setHeader("Content-type", "image/jpeg");
-        res.send(fs.readFileSync("temp/garytheaxolotl-last.jpg"));
+        res.send(fs.readFileSync("TEMP/garytheaxolotl-last.jpg"));
     });
 
     router.get("/meta", async (req, res) => {
