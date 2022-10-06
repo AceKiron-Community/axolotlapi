@@ -8,6 +8,13 @@ const fs = require("fs");
 if (!fs.existsSync("./TEMP")) fs.mkdirSync("./TEMP");
 if (!fs.existsSync("./db")) fs.mkdirSync("./db");
 
+if (!fs.existsSync("./db/garytheaxolot.json")) {
+    fs.writeFileSync("./db/garytheaxolotl.json", JSON.stringify({
+        "axolotl-update-videodata-cooldown": 0,
+        "axolotl-update-videodata": ""
+    }));
+}
+
 for (const modName of fs.readdirSync("./controllers")) {
     const router = Express.Router();
 
