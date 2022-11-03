@@ -21,8 +21,6 @@ async function updateVideoId() {
             url: `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${process.env.GOOGLE_API_KEY}`
         });
 
-        console.log(req.data.items[0].snippet);
-
         let items = req.data.items.filter((item) => item.snippet.title === "Axolotl Live 24/7 With Gary The Axolotl and Migi");
 
         if (items.length == 0) {
@@ -43,6 +41,8 @@ async function updateVideoId() {
 }
 
 async function fetchPicture() {
+    if (VIDEO_DATA === null) return;
+    
     const query = `ffmpeg -i "$(yt-dlp -g ${VIDEO_DATA.id.videoId} | head -n 1)" -vframes 1 ./TEMP/garytheaxolotl-last.jpg -y -v quiet`;
     return await cp.exec(query);
 }
