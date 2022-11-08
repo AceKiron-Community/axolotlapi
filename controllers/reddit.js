@@ -1,86 +1,64 @@
 const Axios = require("axios");
 
-let showingOff = [];
-let urgentHelp = [];
-let careAdvice = [];
-let artsAndCrafts = [];
-let discussion = [];
+let entries = [];
 
 let lastUpdated = 0;
 
 function isAllowedToUpdate() {
-    return Date.now() > lastUpdated + 60 * 30 * 1000; // Update once every 30 minutes
+    return Date.now() > lastUpdated + 60 * 30 * 1000; // Update once every 30 minutes at most
 }
 
 async function update() {
     lastUpdated = Date.now();
 
-    const limit = 100;
-    const res = await Axios.get(`https://www.reddit.com/r/axolotls/new.json?limit=${limit}`);
-    
-    showingOff = [];
-    urgentHelp = [];
-    careAdvice = [];
-    artsAndCrafts = [];
-    discussion = [];
+    const res = await Axios.get("https://www.reddit.com/r/axolotls/new.json?limit=100");
+
+    entries = [];
 
     for (const child of res.data.data.children) {
-        const { title, score, author, total_awards_received } = child.data;
+        const data = child.data;
+
+        const { title, score, author, total_awards_received, num_comments } = data;
+        const link = "https://www.reddit.com" + data.permalink;
+
+        let media;
+
+        if (data.media_metadata) media = Object.values(data.media_metadata).map((media_item) => media_item.s.u.split("?")[0].replace("preview.redd.it", "i.redd.it"));
+        else if (data.media) media = [data.media];
+        else if (data.url.startsWith("https://i.redd.it/") || data.url.startsWith("https://v.redd.it/")) media = [data.url];
+        else media = [];
         
-        const link = "https://www.reddit.com" + child.data.permalink;
+        let payload = { title, score, media, link, author, total_awards_received, num_comments };
+        payload.flair = data.link_flair_text;
 
-        let media = child.data.media_metadata;
-        if (media) media = Object.values(media).map((media_item) => media_item.s.u.split("?")[0].replace("preview.redd.it", "i.redd.it"));
-        else if (child.data.url) media = [child.data.url];
-
-        let payload = { title, score, media, link, author, total_awards_received };
-        payload.comments = child.data.num_comments;
-
-        switch(child.data.link_flair_text) {
-            case "Just Showing Off 😍": showingOff.push(payload); break;
-            case "Urgent Help": urgentHelp.push(payload); break;
-            case "General Care Advice": careAdvice.push(payload); break;
-            case "Arts and Crafts": artsAndCrafts.push(payload); break;
-            case "Discussion": discussion.push(payload); break;
-
-            default: console.log("Unhandled flair: " + child.data.link_flair_text); break;
-        }
+        entries.push(payload);
     }
-
-    const handledLength = showingOff.length + urgentHelp.length + careAdvice.length + artsAndCrafts.length + discussion.length;
-    console.log(`Handled ${handledLength} out of ${limit} posts!`);
 }
 
 module.exports = async ({ router }) => {
     await update();
 
-    router.get("/showing-off", (req, res) => {
-        if (showingOff.length == 0) { update(); return res.sendStatus(503); }
-        res.send(showingOff[Math.floor(Math.random() * showingOff.length)]);
-        if (isAllowedToUpdate()) { update(); }
-    });
+    router.get("/", (req, res) => {
+        let minScore = req.query.minScore || -Infinity;
+        let minMedia = req.query.minMedia || 0;
+        let minAwards = req.query.minAwards || 0;
+        let minComments = req.query.minComments || 0;
 
-    router.get("/urgent-help", (req, res) => {
-        if (urgentHelp.length == 0) { update(); return res.sendStatus(503); }
-        res.send(urgentHelp[Math.floor(Math.random() * urgentHelp.length)]);
-        if (isAllowedToUpdate()) { update(); }
-    });
+        let maxScore = req.query.maxScore || Infinity;
+        let maxMedia = req.query.maxMedia || Infinity;
+        let maxAwards = req.query.maxAwards || Infinity;
+        let maxComments = req.query.maxComments || Infinity;
+        
+        let arr = entries.filter((e) => e.score >= minScore && e.score <= maxScore)
+                        .filter((e) => e.media.length >= minMedia && e.media.length <= maxMedia)
+                        .filter((e) => e.total_awards_received >= minAwards && e.total_awards_received <= maxAwards)
+                        .filter((e) => e.num_comments >= minComments && e.num_comments <= maxComments);
+        
+        if (req.query.flair) arr = arr.filter((e) => e.flair == req.query.flair);
 
-    router.get("/care-advice", (req, res) => {
-        if (careAdvice.length == 0) { update(); return res.sendStatus(503); }
-        res.send(careAdvice[Math.floor(Math.random() * careAdvice.length)]);
-        if (isAllowedToUpdate()) { update(); }
-    });
+        if (arr.length) res.send(arr[Math.floor(Math.random() * arr.length)]);
+        else res.send({ message: "None of the newest entries fit in the filter" });
 
-    router.get("/arts-and-crafts", (req, res) => {
-        if (artsAndCrafts.length == 0) { update(); return res.sendStatus(503); }
-        res.send(artsAndCrafts[Math.floor(Math.random() * artsAndCrafts.length)]);
-        if (isAllowedToUpdate()) { update(); }
-    });
-
-    router.get("/discussion", (req, res) => {
-        if (discussion.length == 0) { update(); return res.sendStatus(503); }
-        res.send(discussion[Math.floor(Math.random() * discussion.length)]);
-        if (isAllowedToUpdate()) { update(); }
+        if (isAllowedToUpdate()) update();
     });
 }
