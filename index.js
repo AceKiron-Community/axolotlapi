@@ -3,6 +3,8 @@ const App = Express();
 
 require("dotenv").config();
 
+require("./discord-bot");
+
 const fs = require("fs");
 
 if (!fs.existsSync("./TEMP")) fs.mkdirSync("./TEMP");
