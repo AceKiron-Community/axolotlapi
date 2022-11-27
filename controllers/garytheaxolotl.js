@@ -50,6 +50,8 @@ async function fetchPicture() {
 let updating = false;
 
 module.exports = async ({ router }) => {
+    return; // Temporarily disable garytheaxolotl controller until 24/7 live is back up
+
     await updateVideoId();
     await fetchPicture();
 
