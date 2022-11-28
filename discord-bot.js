@@ -28,9 +28,9 @@ client.on("messageCreate", async (msg) => {
         let req;
 
         if (msg.channel.nsfw)
-            req = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit/getcount/new?minMedia=1&flair=Just%20Showing%20Off%20😍&nsfw=1");
+            req = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit/new/getcount?minMedia=1&flair=Just%20Showing%20Off%20😍&nsfw=1");
         else
-            req = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit/getcount/new?minMedia=1&flair=Just%20Showing%20Off%20😍");
+            req = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit/new/getcount?minMedia=1&flair=Just%20Showing%20Off%20😍");
 
         msg.reply(req.data.data.toString());
     }
