@@ -21,7 +21,7 @@ async function update() {
     res.data.data.children.forEach((child) => {
         const data = child.data;
 
-        const { title, score, author, total_awards_received, num_comments } = data;
+        const { title, score, author, total_awards_received, num_comments, spoiler } = data;
         const link = "https://www.reddit.com" + data.permalink;
 
         let media = [];
@@ -59,7 +59,7 @@ async function update() {
             console.log(data.media);
         }
         
-        let payload = { title, score, media, link, author, total_awards_received, num_comments };
+        let payload = { title, score, media, link, author, total_awards_received, num_comments, spoiler };
         payload.flair = data.link_flair_text;
         payload.nsfw = data.thumbnail === "nsfw";
 
@@ -73,7 +73,7 @@ module.exports = async ({ router }) => {
 
     const getFilteredArray = (minScore, minMedia, minAwards, minComments,
                             maxScore, maxMedia, maxAwards, maxComments,
-                            author, flair, allowNsfw) => {
+                            author, flair, allowNsfw, allowSpoilers) => {
                                 let arr = entries.filter((e) => e.score >= minScore && e.score <= maxScore)
                                                 .filter((e) => e.media.length >= minMedia && e.media.length <= maxMedia)
                                                 .filter((e) => e.total_awards_received >= minAwards && e.total_awards_received <= maxAwards)
@@ -83,6 +83,7 @@ module.exports = async ({ router }) => {
                                 if (flair !== null) arr = arr.filter((e) => e.flair == flair);
 
                                 if (!allowNsfw) arr = arr.filter((e) => e.nsfw === false);
+                                if (!allowSpoilers) arr = arr.filter((e) => e.spoiler === false);
 
                                 return arr;
                             }
@@ -102,7 +103,8 @@ module.exports = async ({ router }) => {
             req.query.author || null,
             req.query.flair || null,
 
-            req.query.allowNsfw === "true" ? true : false
+            req.query.allowNsfw === "true" ? true : false,
+            req.query.allowSpoilers === "true" ? true : false
         );
     }
 
