@@ -87,10 +87,8 @@ module.exports = async ({ router }) => {
                                 return arr;
                             }
 
-    router.get("/", (req, res) => {
-        let count = req.query.count || 1;
-
-        let arr = getFilteredArray(
+    const getFilteredArrayFromRequest = (req) => {
+        return getFilteredArray(
             req.query.minScore || -Infinity,
             req.query.minMedia || 0,
             req.query.minAwards || 0,
@@ -106,6 +104,11 @@ module.exports = async ({ router }) => {
 
             req.query.allowNsfw === "true" ? true : false
         );
+    }
+
+    router.get("/", (req, res) => {
+        let count = req.query.count || 1;
+        let arr = getFilteredArrayFromRequest(req);
 
         if (arr.length < count) {
             res.send({
@@ -132,6 +135,17 @@ module.exports = async ({ router }) => {
         res.send({
             message: null,
             data: flairs
+        });
+
+        if (isAllowedToUpdate()) update();
+    });
+
+    router.get("/getcount", (req, res) => {
+        let arr = getFilteredArrayFromRequest(req);
+
+        res.send({
+            message: null,
+            data: arr.length
         });
 
         if (isAllowedToUpdate()) update();
