@@ -15,7 +15,7 @@ client.on("ready", () => {
 
 client.on("messageCreate", async (msg) => {
     if (msg.content === "?axolotl") {
-        const post = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit?minMedia=1");
+        const post = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit?minMedia=1&flair=Just%20Showing%20Off%20😍");
         const media = post.data.data[0].media;
         msg.reply(media[Math.floor(Math.random() * media.length)]);
     }
