@@ -22,7 +22,7 @@ async function update() {
         res.data.data.children.forEach(async (child) => {
             const data = child.data;
 
-            const { title, score, author, total_awards_received, num_comments, spoiler, id } = data;
+            const { title, score, author, total_awards_received, num_comments, spoiler, archived, is_crosspostable, pinned, locked, created_utc, id } = data;
             const link = "https://www.reddit.com" + data.permalink;
 
             let media = [];
@@ -60,9 +60,10 @@ async function update() {
                 console.log(data.media);
             }
 
-            let payload = { title, score, media, link, author, total_awards_received, num_comments, spoiler, id };
+            let payload = { title, score, media, link, author, total_awards_received, num_comments, spoiler, archived, is_crosspostable, pinned, locked, created_utc, id };
             payload.flair = data.link_flair_text;
             payload.nsfw = data.over_18;
+            payload.text = data.selftext;
 
             entries[sort].push(payload);
             if (!entries.any.map((e) => e.id).includes(id)) entries.any.push(payload);
@@ -173,5 +174,22 @@ module.exports = async ({ router }) => {
         });
 
         if (isAllowedToUpdate()) update();
+    });
+
+    router.get("/fromid", (req, res) => {
+        let id = req.query.id;
+
+        if (!entries.any.map((e) => e.id).includes(id)) {
+            res.send({
+                message: "Invalid ID provided",
+                data: null
+            });
+        } else {
+            res.send({
+                message: null,
+                data: entries.any.find((e) => e.id === id)
+            });
+        }
+
     });
 }
