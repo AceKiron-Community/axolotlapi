@@ -22,8 +22,8 @@ for (const modName of fs.readdirSync("./controllers")) {
 
     const mod = require(`./controllers/${modName}`);
     mod({ router }).then(() => {
-        App.use(`/${modName}`, router);
-        console.log(`Loaded controller ${modName}`);
+        App.use(`/${modName.replace(".js", "")}`, router);
+        console.log(`Loaded controller ${modName.replace(".js", "")}`);
     });
 }
 

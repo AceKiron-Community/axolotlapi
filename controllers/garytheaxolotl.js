@@ -3,7 +3,7 @@ const fs = require("fs");
 const axios = require("axios");
 
 const JSONdb = require("simple-json-db");
-const db = new JSONdb(__dirname + "/../../db/garytheaxolotl.json");
+const db = new JSONdb(__dirname + "/../db/garytheaxolotl.json");
 
 const CHANNEL_ID = "UCrhYiGXMwsfXB3QTCHmFQiQ";
 
