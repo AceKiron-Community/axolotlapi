@@ -12,4 +12,6 @@ addSubController = async (mainRouter, name) => {
 
 module.exports = async ({ router }) => {
     addSubController(router, "new");
+    addSubController(router, "hot");
+    addSubController(router, "rising");
 }
