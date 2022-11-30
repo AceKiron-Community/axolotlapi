@@ -1,4 +1,5 @@
 const Express = require("express");
+const Cors = require("cors");
 const App = Express();
 
 require("dotenv").config();
@@ -16,6 +17,12 @@ if (!fs.existsSync("./db/garytheaxolot.json")) {
         "axolotl-update-videodata": ""
     }));
 }
+
+App.use(Cors({
+    origin: (origin, callback) => {
+        callback(null, true);
+    }
+}));
 
 for (const modName of fs.readdirSync("./controllers")) {
     const router = Express.Router();
