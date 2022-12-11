@@ -55,6 +55,8 @@ async function update() {
             }
             else if (data.media?.reddit_video) {
                 media.push(data.media.reddit_video.fallback_url.split("?")[0]);
+            } else if (data.media?.oembed) {
+                media.push(data.media.oembed.thumbnail_url.split("?")[0]);
             } else if (data.media) {
                 console.log(Chalk.yellow("Unhandled ${data.media}"));
                 console.log(data.media);
