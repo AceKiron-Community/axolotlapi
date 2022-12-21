@@ -6,6 +6,8 @@ let flairs = [];
 
 let lastUpdated = 0;
 
+let i = 0;
+
 function isAllowedToUpdate() {
     return Date.now() > lastUpdated + 60 * 30 * 1000; // Update once every 30 minutes at most
 }
@@ -19,16 +21,17 @@ async function update() {
     ["new", "hot", "rising"].forEach(async (sort) => {
         const res = await Axios.get(`https://www.reddit.com/r/axolotls/${sort}.json?limit=100`);
 
-        res.data.data.children.forEach(async (child) => {
+        res.data.data.children.forEach((child) => {
             const data = child.data;
 
             const { title, score, author, total_awards_received, num_comments, spoiler, archived, is_crosspostable, pinned, locked, created_utc, id } = data;
             const link = "https://www.reddit.com" + data.permalink;
 
-            let media = [];
+            let images = [];
+            let videos = [];
 
             if (data.url.startsWith("https://i.redd.it/")) {
-                media.push(data.url);
+                images.push(data.url);
             }
             else if (data.media_metadata) {
                 for (const value of Object.values(data.media_metadata)) {
@@ -39,7 +42,7 @@ async function update() {
                     
                     switch (value.e) {
                         case "Image":
-                            media.push(value.s.u.split("?")[0].replace("https://preview.redd.it/", "https://i.redd.it/"));
+                            images.push(value.s.u.split("?")[0].replace("https://preview.redd.it/", "https://i.redd.it/"));
                             break;
 
                         case "RedditVideo":
@@ -54,18 +57,32 @@ async function update() {
                 }
             }
             else if (data.media?.reddit_video) {
-                media.push(data.media.reddit_video.fallback_url.split("?")[0]);
+                videos.push(data.media.reddit_video.fallback_url.split("?")[0]);
             } else if (data.media?.oembed) {
-                media.push(data.media.oembed.thumbnail_url.split("?")[0]);
+                images.push(data.media.oembed.thumbnail_url.split("?")[0]);
             } else if (data.media) {
                 console.log(Chalk.yellow("Unhandled ${data.media}"));
                 console.log(data.media);
             }
 
-            let payload = { title, score, media, link, author, total_awards_received, num_comments, spoiler, archived, is_crosspostable, pinned, locked, created_utc, id };
+            let payload = { title, score, link, author, total_awards_received, num_comments, spoiler, archived, is_crosspostable, pinned, locked, created_utc, id };
             payload.flair = data.link_flair_text;
             payload.nsfw = data.over_18;
             payload.text = data.selftext;
+            payload.media = [];
+
+            for (const image of images) {
+                payload.media.push({
+                    kind: "image",
+                    url: image
+                });
+            }
+            for (const video of videos) {
+                payload.media.push({
+                    kind: "video",
+                    url: video
+                });
+            }
 
             entries[sort].push(payload);
             if (!entries.any.map((e) => e.id).includes(id)) entries.any.push(payload);
@@ -109,7 +126,7 @@ module.exports = async ({ router }) => {
         if (!["new", "hot", "rising", "any"].includes(set)) set = "any";
 
         return getFilteredArray(
-            req.query.set || "any",
+            set,
 
             req.query.minScore || -Infinity,
             req.query.minMedia || 0,
