@@ -6,8 +6,6 @@ let flairs = [];
 
 let lastUpdated = 0;
 
-let i = 0;
-
 function isAllowedToUpdate() {
     return Date.now() > lastUpdated + 60 * 30 * 1000; // Update once every 30 minutes at most
 }
