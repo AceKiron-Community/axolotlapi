@@ -23,7 +23,7 @@ client.on("messageCreate", async (msg) => {
             post = await Axios.get("https://AxolotlAPI-test.kirondevcoder.repl.co/reddit?minMedia=1&flair=Just%20Showing%20Off%20😍");
 
         const media = post.data.data[0].media;
-        await msg.reply(media[Math.floor(Math.random() * media.length)]);
+        await msg.reply(media[Math.floor(Math.random() * media.length)].url);
         await msg.reply(post.data.data[0].link);
     } else if (msg.content === "?count") {
         let req;
